@@ -1,0 +1,32 @@
+from .base_strategy import BaseStrategy
+import pandas as pd
+
+class RSIStrategy(BaseStrategy):
+    def __init__(self, period=14, overbought=70, oversold=30):
+        self.period = period
+        self.overbought = overbought
+        self.oversold = oversold
+
+    def get_signal(self, data):
+        delta = data['price'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(self.period).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(self.period).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        if rsi.iloc[-1] < self.oversold:
+            return 'long'
+        elif rsi.iloc[-1] > self.overbought:
+            return 'short'
+        return 'flat'
+
+    def get_sl_tp(self, data, signal):
+        entry_price = data['price'].iloc[-1]
+        if signal == 'long':
+            sl = entry_price * 0.98
+            tp = entry_price * 1.04
+        elif signal == 'short':
+            sl = entry_price * 1.02
+            tp = entry_price * 0.96
+        else:
+            sl = tp = None
+        return sl, tp

@@ -1,0 +1,6 @@
+class BaseStrategy:
+    def get_signal(self, data):
+        raise NotImplementedError("Метод get_signal должен быть реализован в подклассе")
+
+    def get_sl_tp(self, data, signal):
+        raise NotImplementedError("Метод get_sl_tp должен быть реализован в подклассе")

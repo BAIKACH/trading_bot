@@ -1,0 +1,21 @@
+import ccxt
+import config
+
+exchanges = {
+    'mexc': ccxt.mexc({
+        'apiKey': config.MEXC_API_KEY,
+        'secret': config.MEXC_API_SECRET,
+        'enableRateLimit': True,
+    }),
+    'binance': ccxt.binance({
+        'apiKey': config.BINANCE_API_KEY,
+        'secret': config.BINANCE_API_SECRET,
+        'enableRateLimit': True,
+    })
+}
+
+def place_order(exchange_name, symbol, side, amount, price=None, params={}):
+    exchange = exchanges[exchange_name]
+    order_type = 'market' if price is None else 'limit'
+    order = exchange.create_order(symbol, order_type, side, amount, price, params)
+    return order

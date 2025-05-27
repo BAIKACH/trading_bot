@@ -1,0 +1,28 @@
+from .base_strategy import BaseStrategy
+import pandas as pd
+
+class MACrossoverStrategy(BaseStrategy):
+    def __init__(self, short_window=10, long_window=30):
+        self.short_window = short_window
+        self.long_window = long_window
+
+    def get_signal(self, data):
+        short_ma = data['price'].rolling(window=self.short_window).mean()
+        long_ma = data['price'].rolling(window=self.long_window).mean()
+        if short_ma.iloc[-1] > long_ma.iloc[-1] and short_ma.iloc[-2] <= long_ma.iloc[-2]:
+            return 'long'
+        elif short_ma.iloc[-1] < long_ma.iloc[-1] and short_ma.iloc[-2] >= long_ma.iloc[-2]:
+            return 'short'
+        return 'flat'
+
+    def get_sl_tp(self, data, signal):
+        entry_price = data['price'].iloc[-1]
+        if signal == 'long':
+            sl = entry_price * 0.98
+            tp = entry_price * 1.04
+        elif signal == 'short':
+            sl = entry_price * 1.02
+            tp = entry_price * 0.96
+        else:
+            sl = tp = None
+        return sl, tp
